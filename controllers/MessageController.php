@@ -763,7 +763,13 @@ class MessageController extends Controller
 
         return $this->render('draft', [
             'draft' => $draft,
-            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+            'possible_recipients' => ArrayHelper::map(
+                $possible_recipients, 'id', function ($model) {
+                if (method_exists($model, '__toString')) {
+                    return $model->__toString();
+                }
+                return $model->username;
+            }),
         ]);
     }
 

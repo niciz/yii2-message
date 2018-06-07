@@ -248,7 +248,17 @@ class Message extends ActiveRecord
      */
     public function afterSave($insert, $changedAttributes)
     {
-        if ($insert && isset($this->recipient->email)) {
+        if ($insert) {
+            $this->handleEmails();
+            $this->handleAllowedContacts();
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    protected function handleEmails()
+    {
+        if (isset($this->recipient->email)) {
             $mailMessages = Yii::$app->getModule('message')->mailMessages;
 
             if ($mailMessages === true
@@ -256,8 +266,31 @@ class Message extends ActiveRecord
                 $this->sendEmailToRecipient();
             }
         }
+    }
 
-        return parent::afterSave($insert, $changedAttributes);
+    /**
+     * Allow the sender to send messages to the recipient in the future.
+     * Also allows the recipient to send messages to the sender.
+     * @throws yii\db\Exception
+     */
+    protected function handleAllowedContacts()
+    {
+        if ($this->from && $this->to) {
+            $tablename = AllowedContacts::tableName();
+            Yii::$app->db->createCommand()->upsert($tablename, [
+                'user_id' => $this->from,
+                'is_allowed_to_write' => $this->to,
+                'created_at' => date('Y-m-d G:i:s'),
+                'updated_at' => date('Y-m-d G:i:s'),
+            ], false, [])->execute();
+
+            Yii::$app->db->createCommand()->upsert($tablename, [
+                'user_id' => $this->to,
+                'is_allowed_to_write' => $this->from,
+                'created_at' => date('Y-m-d G:i:s'),
+                'updated_at' => date('Y-m-d G:i:s'),
+            ], false, [])->execute();
+        }
     }
 
     /**
