@@ -48,9 +48,10 @@ class Message extends ActiveRecord
      * @param $title title of the message (required)
      * @param string $message body of the message (optional)
      * @param null $context set a string or url to define what this message referrs to (optional)
+     * @param string $params extra params if the others are not enough
      * @return Message
      */
-    public static function compose($from, $to, $title, $message = '', $context = null)
+    public static function compose($from, $to, $title, $message = '', $context = null, $params = null)
     {
         $model = new Message;
         $model->from = $from;
@@ -59,6 +60,7 @@ class Message extends ActiveRecord
         $model->message = $message;
         $model->context = $context;
         $model->status = self::STATUS_UNREAD;
+        $model->params = $params;
         $model->save();
         return $model;
     }
@@ -200,7 +202,7 @@ class Message extends ActiveRecord
     {
         return [
             [['title'], 'required'],
-            [['title', 'message', 'context'], 'string'],
+            [['title', 'message', 'context', 'params'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['to'], IgnoreListValidator::class],
             [['to'], 'exist',
@@ -343,6 +345,7 @@ class Message extends ActiveRecord
             'to' => Yii::t('message', 'to'),
             'title' => Yii::t('message', 'title'),
             'message' => Yii::t('message', 'message'),
+            'params' => Yii::t('message', 'params'),
             'created_at' => Yii::t('message', 'created at'),
             'context' => Yii::t('message', 'context'),
         ];
