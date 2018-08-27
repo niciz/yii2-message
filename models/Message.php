@@ -264,7 +264,7 @@ class Message extends ActiveRecord
             $mailMessages = Yii::$app->getModule('message')->mailMessages;
 
             if ($mailMessages === true
-                || (is_callable($mailMessages) && call_user_func($mailMessages, $this->recipient))) {
+                || (is_callable($mailMessages) && call_user_func($mailMessages, $this))) {
                 $this->sendEmailToRecipient();
             }
         }
