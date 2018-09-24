@@ -24,8 +24,8 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
             if ($ignored) {
                 echo Html::tag('span', Yii::t('message', 'Answer'), [
                     'class' => 'btn btn-primary disabled',
-                    'title' => $ignored ? Yii::t(
-                        'message', 'The recipient has added you to the ignore list. You can not send any messages to this person.') : '',
+                    'title' => $ignored ? Yii::t( 'message',
+                        'The recipient has added you to the ignore list. You can not send any messages to this person.') : '',
                 ]);
             } else if ($message->from === null) {
                 echo '<span class="alert alert-info">';
@@ -44,7 +44,11 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
     <?php
     if ($message->sender !== null) {
         if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
-            $from = Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]));
+            $from = Html::a(
+                    $message->sender->username,
+                    array_merge(
+                            Yii::$app->getModule('message')->userProfileRoute,
+                            ['id' => $message->from]));
         } else {
             $from = $message->sender->username;
         }
@@ -66,7 +70,7 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <?= Yii::t('message', 'title'); ?>: <?= Html::encode($this->title) ?>
+            <?= Yii::t('message', 'title'); ?>: <?= $this->title; ?>
         </div>
         <div class="panel-body">
             <?= $message->message

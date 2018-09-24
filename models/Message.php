@@ -10,6 +10,8 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\HtmlPurifier;
 
 /**
  * Class Message
@@ -322,7 +324,7 @@ class Message extends ActiveRecord
         ])
             ->setTo($this->recipient->email)
             ->setFrom(Yii::$app->params['adminEmail'])
-            ->setSubject($this->title);
+            ->setSubject(Html::decode($this->title));
 
         if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
             $mailing->queue();
@@ -335,6 +337,24 @@ class Message extends ActiveRecord
         }
 
         $this->trigger(Message::EVENT_AFTER_MAIL);
+    }
+
+    /**
+     * Let HTML Purifier run through the user input of the message for security reasons.
+     *
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        foreach (['title', 'message', 'context'] as $attribute) {
+
+            if (!is_array($this->$attribute)) {
+                $this->$attribute = HtmlPurifier::process($this->$attribute);
+            }
+        }
+
+        return parent::beforeSave($insert);
     }
 
     public function attributeLabels()
