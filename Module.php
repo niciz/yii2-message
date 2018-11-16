@@ -59,6 +59,18 @@ class Module extends BaseModule
     public $recipientsFilterCallback = null;
 
     /**
+     * @var string|null|callable
+     *
+     * This is the string that will be set as sender in outgoing E-Mails.
+     *
+     * If set to null (default) it will set the value in Yii::$app->params['adminEmail'].
+     *
+     * Set this to a callback to determine how the "from" attribute will appear in
+     * an outgoing email.
+     */
+    public $from = null;
+
+    /**
      * @var string The class of the User Model inside the application this module is attached to.
      * Needs at least to have the attributes 'id' and 'username'.
      */

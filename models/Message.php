@@ -41,7 +41,7 @@ class Message extends ActiveRecord
 
     public static function generateHash(): string
     {
-         return md5(uniqid(rand(), true));
+        return md5(uniqid(rand(), true));
     }
 
     /**
@@ -229,7 +229,7 @@ class Message extends ActiveRecord
             [
                 'class' => AttributeBehavior::class,
 
-                 // this is important for auto-saving of drafts in compose view:
+                // this is important for auto-saving of drafts in compose view:
                 'preserveNonEmptyValues' => true,
 
                 'attributes' => [ActiveRecord::EVENT_BEFORE_INSERT => 'hash'],
@@ -323,7 +323,7 @@ class Message extends ActiveRecord
             'content' => $this->message
         ])
             ->setTo($this->recipient->email)
-            ->setFrom(Yii::$app->params['adminEmail'])
+            ->setFrom($this->determineFrom())
             ->setSubject(Html::decode($this->title));
 
         if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
@@ -335,8 +335,20 @@ class Message extends ActiveRecord
         } else {
             $mailing->send();
         }
-
         $this->trigger(Message::EVENT_AFTER_MAIL);
+    }
+
+    protected function determineFrom()
+    {
+        $from = Yii::$app->getModule('message')->from;
+
+        if (is_string($from)) {
+            return $from;
+        } else if (is_callable($from)) {
+            return call_user_func(Yii::$app->getModule('message')->from, $this);
+        }
+
+        return Yii::$app->params['adminEmail'];
     }
 
     /**
