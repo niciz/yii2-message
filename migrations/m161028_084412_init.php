@@ -16,20 +16,41 @@ class m161028_084412_init extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
 
         $this->createTable('{{%message}}', [
-            'id'                   => Schema::TYPE_PK,
-            'hash'                 => Schema::TYPE_STRING . '(32) NOT NULL',
-            'from'                 => Schema::TYPE_INTEGER,
-            'to'                   => Schema::TYPE_INTEGER,
-            'status'               => Schema::TYPE_INTEGER,
-            'title'                => Schema::TYPE_STRING . '(255) NOT NULL',
-            'message'              => Schema::TYPE_TEXT,
-            'created_at'           => Schema::TYPE_DATETIME . ' NOT NULL',
+            'id' => Schema::TYPE_PK,
+            'hash' => Schema::TYPE_STRING . '(32) NOT NULL',
+            'from' => Schema::TYPE_INTEGER,
+            'to' => Schema::TYPE_INTEGER,
+            'status' => Schema::TYPE_INTEGER,
+            'title' => Schema::TYPE_STRING . '(255) NOT NULL',
+            'message' => Schema::TYPE_TEXT,
+            'created_at' => Schema::TYPE_DATETIME . ' NOT NULL',
+            'context' => $this->string(4096),
+            'params' => $this->text(),
         ], $tableOptions);
+
+        $this->createTable('{{%message_ignorelist}}', [
+            'user_id' => Schema::TYPE_INTEGER,
+            'blocks_user_id' => Schema::TYPE_INTEGER,
+            'created_at' => Schema::TYPE_DATETIME . ' NOT NULL',
+        ], $tableOptions);
+
+        $this->createTable('{{%message_allowed_contacts}}', [
+            'user_id' => Schema::TYPE_INTEGER,
+            'is_allowed_to_write' => Schema::TYPE_INTEGER,
+            'created_at' => Schema::TYPE_DATETIME . ' NOT NULL',
+            'updated_at' => Schema::TYPE_DATETIME . ' NOT NULL',
+        ], $tableOptions);
+
+        $this->addPrimaryKey('message_allowed_contacts-pk', '{{%message_allowed_contacts}}', ['user_id', 'is_allowed_to_write']);
+
+        $this->addPrimaryKey('message_ignorelist-pk', '{{%message_ignorelist}}', ['user_id', 'blocks_user_id']);
 
     }
 
     public function down()
     {
         $this->dropTable('{{%message}}');
+        $this->dropTable('{{%message_ignorelist}}');
+        $this->dropTable('{{%message_allowed_contacts');
     }
 }
