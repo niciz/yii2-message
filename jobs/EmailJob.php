@@ -2,6 +2,7 @@
 
 namespace thyseus\message\jobs;
 
+use thyseus\message\models\Message;
 use yii\base\BaseObject;
 use yii\queue\Job;
 
@@ -12,7 +13,9 @@ use yii\queue\Job;
  */
 class EmailJob extends BaseObject implements Job
 {
-    public $mailing;
+    public $message_id;
+
+    public $attributes = null;
 
     /**
      * Send the mail.
@@ -20,6 +23,7 @@ class EmailJob extends BaseObject implements Job
      */
     public function execute($queue)
     {
-        return $this->mailing->send();
+        $message = Message::findOne($this->message_id);
+        return $message->sendEmail($this->attributes);
     }
 }

@@ -310,32 +310,48 @@ class Message extends ActiveRecord
      */
     public function sendEmailToRecipient()
     {
+        $this->trigger(Message::EVENT_BEFORE_MAIL);
+
+        if (Yii::$app->getModule('message')->useMailQueue) {
+            Yii::$app->queue->push(new EmailJob(['message_id' => $this->id]));
+        } else {
+            $this->sendEmail();
+        }
+        $this->trigger(Message::EVENT_AFTER_MAIL);
+    }
+
+
+    public function sendEmail(array $attributes = null)
+    {
         $mailer = Yii::$app->{Yii::$app->getModule('message')->mailer};
 
-        $this->trigger(Message::EVENT_BEFORE_MAIL);
+        $to = $this->recipient->email;
+        $from = $this->determineFrom();
+        $subject = Html::decode($this->title);
+        $model = $this;
+        $message = $this->message;
+
+        foreach (['to', 'from', 'subject', 'model', 'message'] as $var) {
+            if (isset($attributes[$var])) {
+                $$var = $attributes[$var];
+            }
+        }
 
         if (!file_exists($mailer->viewPath)) {
             $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
         }
 
-        $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], [
-            'model' => $this,
-            'content' => $this->message
-        ])
-            ->setTo($this->recipient->email)
-            ->setFrom($this->determineFrom())
-            ->setSubject(Html::decode($this->title));
+        $mailer
+            ->compose(['html' => 'message', 'text' => 'text/message'], [
+                'model' => $model,
+                'content' => $message,
+            ])
+            ->setTo($to)
+            ->setFrom($from)
+            ->setSubject($subject)
+            ->send();
 
-        if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
-            $mailing->queue();
-        } else if (Yii::$app->getModule('message')->useMailQueue) {
-            Yii::$app->queue->push(new EmailJob([
-                'mailing' => $mailing,
-            ]));
-        } else {
-            $mailing->send();
-        }
-        $this->trigger(Message::EVENT_AFTER_MAIL);
+        return $mailer;
     }
 
     protected function determineFrom()
