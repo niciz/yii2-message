@@ -25,7 +25,7 @@ class m161028_084412_init extends Migration
             'message' => Schema::TYPE_TEXT,
             'created_at' => Schema::TYPE_DATETIME . ' NOT NULL',
             'context' => $this->string(4096),
-            'params' => $this->text(),
+            'params' => $this->json(),
         ], $tableOptions);
 
         $this->createTable('{{%message_ignorelist}}', [
