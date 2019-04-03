@@ -307,13 +307,18 @@ class MessageController extends Controller
      */
     protected function findModel($hash)
     {
-        $message = Message::find()->where(['hash' => $hash])->one();
+        $message = Message::find()
+            ->where(['hash' => $hash])
+            ->andWhere(['!=', 'status', Message::STATUS_DELETED])
+            ->one();
 
-        if (!$message)
+        if (!$message) {
             throw new NotFoundHttpException(Yii::t('message', 'The requested message does not exist.'));
+        }
 
-        if (Yii::$app->user->id != $message->to && Yii::$app->user->id != $message->from)
+        if (Yii::$app->user->id != $message->to && Yii::$app->user->id != $message->from) {
             throw new ForbiddenHttpException(Yii::t('message', 'You are not allowed to access this message.'));
+        }
 
         return $message;
     }
@@ -853,6 +858,6 @@ class MessageController extends Controller
             'success', Yii::t('message',
             'The message has been deleted.'));
 
-        return $this->redirect(Yii::$app->request->referrer);
+        return $this->redirect(['message/inbox']);
     }
 }
