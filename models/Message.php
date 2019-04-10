@@ -2,6 +2,7 @@
 
 namespace thyseus\message\models;
 
+use app\models\User;
 use thyseus\message\jobs\EmailJob;
 use thyseus\message\validators\IgnoreListValidator;
 use yii;
@@ -94,22 +95,15 @@ class Message extends ActiveRecord
     {
         $user = new Yii::$app->controller->module->userModelClass;
 
-        $ignored_users = [];
-        foreach (IgnoreListEntry::find()
-                     ->select('user_id')
-                     ->where(['blocks_user_id' => $for_user])
-                     ->asArray()
-                     ->all() as $ignore) {
-            $ignored_users[] = $ignore['user_id'];
-        }
+        $ignored_users=IgnoreListEntry::find()
+            ->select('user_id')
+            ->where(['blocks_user_id' => $for_user])
+            ->column();
 
-        $allowed_contacts = [];
-        foreach (AllowedContacts::find()
-                     ->select('is_allowed_to_write')
-                     ->where(['user_id' => $for_user])
-                     ->all() as $allowed_user) {
-            $allowed_contacts[] = $allowed_user->is_allowed_to_write;
-        }
+        $allowed_contacts = AllowedContacts::find()
+            ->select('is_allowed_to_write')
+            ->where(['user_id' => $for_user])
+            ->column();
 
         $users = $user::find();
         $users->where(['!=', 'id', Yii::$app->user->id]);
@@ -119,13 +113,13 @@ class Message extends ActiveRecord
             $users->andWhere(['id' => $allowed_contacts]);
         }
 
-        $users = $users->all();
+        $userIds = $users->select('id')->column();
 
         if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback)) {
-            $users = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $users);
+            $allowedUserIds = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $userIds);
         }
 
-        return $users;
+        return User::find()->where(['id' => $allowedUserIds])->limit(200)->all();
     }
 
     public static function determineUserCaptionAttribute()
