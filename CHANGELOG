@@ -1,4 +1,5 @@
-0.4.0 - to be released
+0.4.0 - released on 2019-09-24
+ENH: MessageController#actionCheckForNewMessages() now returns proper json instead of a mystical string
 ENH: Introduce flash messages for common actions
 ENH: Allow to save drafts and signatures
 ENH: Allow to send messages without sender (messages coming from "the system")

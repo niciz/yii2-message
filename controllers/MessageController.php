@@ -14,6 +14,8 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\StringHelper;
+use yii\i18n\Formatter;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -62,58 +64,74 @@ class MessageController extends Controller
         ];
     }
 
-    /** Simply print the count of unread messages for the currently logged in user.
-     * If it is only one unread message, display an link to it.
+    /**
+     * Returns the count of unread messages for the currently logged in user
+     * as well as the titles of the <limit(default:five)> last messages
+     * as json for further handling on e.g. the client side.
+     *
      * Useful if you want to implement a automatic notification for new users using
      * the longpoll method (e.g. query every 10 seconds).
+     *
      * To ensure the user is not being bugged too often, we only display the
      * "new messages" message once every <newMessagesEverySeconds> per session.
-     * This defaults to 3600 (once every hour). */
-    public function actionCheckForNewMessages()
+     * This defaults to 3600 (once every hour).
+     *
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionCheckForNewMessages(int $limit = 5): array
     {
-        Yii::$app->response->format = Response::FORMAT_RAW;
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $truncateLength = 80;
 
         $session = Yii::$app->session;
 
         $key = 'last_check_for_new_messages';
         $last = 'last_response_when_checking_for_new_messages';
 
+        $lastCheck = time();
+
         if ($session->has($key)) {
-            $last_check = $session->get($key);
-        } else {
-            $last_check = time();
+            $lastCheck = $session->get($key);
         }
 
-        $conditions = ['to' => Yii::$app->user->id, 'status' => 0];
+        $conditions = [
+            'to' => Yii::$app->user->id,
+            'status' => Message::STATUS_UNREAD,
+        ];
 
-        $count = Message::find()->where($conditions)->count();
+        $unreadCount = Message::find()
+            ->where($conditions)
+            ->count();
 
-        $time_bygone = time() > $last_check + Yii::$app->getModule('message')->newMessagesEverySeconds;
+        $newMessagesEverySeconds = Yii::$app->getModule('message')->newMessagesEverySeconds;
+        $timeBygone = time() > $lastCheck + $newMessagesEverySeconds;
 
-        if ($count == 1) {
-            $message = Message::find()->where($conditions)->one();
+        $recentMessages = [];
+        $formatter = new Formatter();
 
-            if ($message) {
-                if ($message->title != $session->get($last) || $time_bygone) {
-                    return Html::a($message->title, ['//message/message/view', 'hash' => $message->hash])
-                        . '<br><br>' . Yii::t('message', 'Received at: {time_message_received}', [
-                            'time_message_received' => Yii::$app->formatter->asDateTime($message->created_at)
-                        ]);
-                    Yii::$app->session->set($last, $message->title);
-                } else
-                    return 0;
-            }
-        } else {
-            if ($count != $session->get($last) || $time_bygone) {
-                Yii::$app->session->set($last, $count);
-                return $count;
+        foreach (Message::find()
+                     ->where($conditions)
+                     ->limit($limit)
+                     ->orderBy('created_at DESC')
+                     ->all() as $message) {
+            $recentMessages[] = [
+                'title' => StringHelper::truncate($message->title, $truncateLength),
+                'created_at' => $formatter->asDate($message->created_at),
+            ];
+        };
 
-            } else {
-                return 0;
-            }
+        if ($unreadCount != $session->get($last) || $timeBygone) {
+            Yii::$app->session->set($last, $unreadCount);
         }
 
         Yii::$app->session->set($key, time());
+
+        return [
+            'unread_count' => $unreadCount,
+            'recent_messages' => $recentMessages,
+        ];
     }
 
     /**
@@ -347,15 +365,15 @@ class MessageController extends Controller
      * When a out-of-office message is set by the recipient, we automatically send the message as answer
      * to the reicpient. (since 0.4.0)
      *
-     * @see README.md
-     * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
-     * @var $answers string|null This message will be marked as an answer to the message of this hash
+     * @return mixed
+     * @throws ForbiddenHttpException When the user is on the ignore list.
+     * @throws NotFoundHttpException When the user is not found in the database anymore.
      * @var $context string|null This message is related to an entity accessible through this url
      * @var $add_to_recipient_list bool This users did not yet have contact, add both of them to their contact list
      * @since 0.3.0
-     * @throws NotFoundHttpException When the user is not found in the database anymore.
-     * @throws ForbiddenHttpException When the user is on the ignore list.
-     * @return mixed
+     * @see README.md
+     * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
+     * @var $answers string|null This message will be marked as an answer to the message of this hash
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
@@ -676,7 +694,7 @@ class MessageController extends Controller
 
         if (!$outOfOffice) {
             $outOfOffice = new Message;
-            $outOfOffice->title = Yii::t( 'message',
+            $outOfOffice->title = Yii::t('message',
                 'Currently i am not available, but i will respond to your message as soon as i am back again');
             $outOfOffice->status = Message::STATUS_OUT_OF_OFFICE_ACTIVE;
 

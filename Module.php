@@ -84,7 +84,7 @@ class Module extends BaseModule
 
     /**
      * @var string The route that should be used to generate links towards an user.
-     * Could be ['//user/profile/view'] for example. The id gets appended automatically.
+     * Could be ['profile/view'] for example. The id gets appended automatically.
      */
     public $userProfileRoute = null;
 

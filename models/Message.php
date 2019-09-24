@@ -140,7 +140,8 @@ class Message extends ActiveRecord
      */
     public function handleOutOfOfficeMessage()
     {
-        $answer = Message::find()->where([
+        $answer = Message::find()->where(
+            [
                 'from' => $this->to,
                 'status' => Message::STATUS_OUT_OF_OFFICE_ACTIVE,
             ]
@@ -149,7 +150,6 @@ class Message extends ActiveRecord
         if ($answer) {
             Message::compose($this->to, $this->from, $answer->title, $answer->message);
         }
-
     }
 
     /**
@@ -164,7 +164,10 @@ class Message extends ActiveRecord
                 ->where(['to' => $user_id])
                 ->select('from')
                 ->groupBy('from')
-                ->all(), 'from', 'sender.username');
+                ->all(),
+            'from',
+            'sender.username'
+        );
     }
 
     /**
@@ -354,7 +357,7 @@ class Message extends ActiveRecord
 
         if (is_string($from)) {
             return $from;
-        } else if (is_callable($from)) {
+        } elseif (is_callable($from)) {
             return call_user_func(Yii::$app->getModule('message')->from, $this);
         }
 
@@ -370,7 +373,6 @@ class Message extends ActiveRecord
     public function beforeSave($insert)
     {
         foreach (['title', 'message', 'context'] as $attribute) {
-
             if (!is_array($this->$attribute)) {
                 $this->$attribute = HtmlPurifier::process($this->$attribute);
             }
@@ -412,10 +414,11 @@ class Message extends ActiveRecord
 
     public function getRecipientLabel()
     {
-        if (!$this->recipient)
+        if (!$this->recipient) {
             return Yii::t('message', 'Removed user');
-        else
+        } else {
             return $this->recipient->username;
+        }
     }
 
     public function getAllowedContacts()
@@ -432,5 +435,4 @@ class Message extends ActiveRecord
     {
         return $this->hasOne(Yii::$app->getModule('message')->userModelClass, ['id' => 'from']);
     }
-
 }
