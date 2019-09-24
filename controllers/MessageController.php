@@ -15,7 +15,6 @@ use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\StringHelper;
-use yii\i18n\Formatter;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -109,16 +108,16 @@ class MessageController extends Controller
         $timeBygone = time() > $lastCheck + $newMessagesEverySeconds;
 
         $recentMessages = [];
-        $formatter = new Formatter();
 
         foreach (Message::find()
+                     ->select(['title', 'created_at'])
                      ->where($conditions)
                      ->limit($limit)
                      ->orderBy('created_at DESC')
                      ->all() as $message) {
             $recentMessages[] = [
                 'title' => StringHelper::truncate($message->title, $truncateLength),
-                'created_at' => $formatter->asDate($message->created_at),
+                'created_at' => $message->created_at,
             ];
         };
 
