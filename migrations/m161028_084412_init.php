@@ -55,7 +55,7 @@ class m161028_084412_init extends Migration
         $this->createIndex('message-to', '{{%message}}', 'to');
 
         if (Yii::$app->db->driverName == 'mysql') {
-            $this->execute("ALTER TABLE `message` ADD FULLTEXT INDEX `message-message` (message ASC)");
+            $this->execute("ALTER TABLE `message` ADD FULLTEXT INDEX `message-message` (message)");
         }
 
     }
