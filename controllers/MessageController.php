@@ -216,8 +216,8 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             IgnoreListEntry::deleteAll(['user_id' => Yii::$app->user->id]);
 
-            if (isset(Yii::$app->request->post()['ignored_users'])) {
-                foreach (Yii::$app->request->post()['ignored_users'] as $ignored_user) {
+            if ($ignored_users = Yii::$app->request->post('ignored_users')) {
+                foreach ($ignored_users as $ignored_user) {
                     $model = Yii::createObject([
                         'class' => IgnoreListEntry::class,
                         'user_id' => Yii::$app->user->id,
@@ -408,20 +408,20 @@ class MessageController extends Controller
         }
 
         if (Yii::$app->request->isPost) {
-            $recipients = Yii::$app->request->post()['Message']['to'];
-            $draft_hash = Yii::$app->request->post()['draft-hash'];
+            $recipients = Yii::$app->request->post('Message')['to'];
+            $draft_hash = Yii::$app->request->post('draft-hash');
 
             if (is_numeric($recipients)) { # Only one recipient given
                 $recipients = [$recipients];
             }
 
             if (isset($_POST['save-as-draft'])) {
-                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
+                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post('Message'));
             } else if (isset($_POST['save-as-template'])) {
-                $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post()['Message']);
+                $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post('Message'));
             } else {
                 foreach ($recipients as $recipient_id) {
-                    $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
+                    $this->sendMessage($recipient_id, Yii::$app->request->post('Message'), $answers ? $origin : null);
                 }
                 $this->cleanupDraft($draft_hash);
             }

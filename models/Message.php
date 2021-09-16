@@ -114,6 +114,7 @@ class Message extends ActiveRecord
 
         $userIds = $users->select('id')->column();
 
+        $allowedUserIds = [];
         if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback)) {
             $allowedUserIds = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $userIds);
         }
