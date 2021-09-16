@@ -1,6 +1,6 @@
 <?php
 
-namespace thyseus\message\models;
+namespace niciz\message\models;
 
 use Yii;
 

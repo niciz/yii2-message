@@ -2,7 +2,7 @@
 
 /* @var $this \yii\web\View */
 
-use thyseus\message\models\Message;
+use niciz\message\models\Message;
 use yii\helpers\Html;
 
 $action = Yii::$app->controller->action->id;

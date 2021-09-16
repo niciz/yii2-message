@@ -4,7 +4,7 @@ use yii\db\Migration;
 use yii\db\Schema;
 
 /**
- * @author Herbert Maschke <thyseus@gmail.com
+ * @author Nico Ratti <rattinico92@gmail.com>
  */
 class m161028_084412_init extends Migration
 {

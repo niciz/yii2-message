@@ -1,13 +1,12 @@
 <?php
 
-namespace thyseus\message\controllers;
+namespace niciz\message\controllers;
 
-use app\models\User;
-use thyseus\message\events\MessageEvent;
-use thyseus\message\models\AllowedContacts;
-use thyseus\message\models\IgnoreListEntry;
-use thyseus\message\models\Message;
-use thyseus\message\models\MessageSearch;
+use niciz\message\events\MessageEvent;
+use niciz\message\models\AllowedContacts;
+use niciz\message\models\IgnoreListEntry;
+use niciz\message\models\Message;
+use niciz\message\models\MessageSearch;
 use Yii;
 use yii\db\IntegrityException;
 use yii\filters\AccessControl;
@@ -635,7 +634,8 @@ class MessageController extends Controller
      */
     protected function add_to_recipient_list($to)
     {
-        if ($recipient = User::findOne($to)) {
+        $user = new Yii::$app->controller->module->userModelClass;
+        if ($recipient = $user::findOne($to)) {
             try {
                 $ac = new AllowedContacts();
                 $ac->user_id = Yii::$app->user->id;

@@ -1,19 +1,19 @@
 {
-    "name": "thyseus/yii2-message",
+    "name": "niciz/yii2-message",
     "description": "Message system for Yii2",
     "keywords": ["yii2", "yii2-user", "message"],
     "type": "yii2-extension",
     "license": "GPL-2.0-only",
     "support": {
-        "issues": "https://github.com/thyseus/yii2-message/issues?state=open",
-        "forum": "https://gitter.im/thyseus/yii2-message",
-        "source": "https://github.com/thyseus/yii2-message"
+        "issues": "https://github.com/niciz/yii2-message/issues?state=open",
+        "forum": "https://gitter.im/niciz/yii2-message",
+        "source": "https://github.com/niciz/yii2-message"
     },
     "authors": [
         {
-            "name": "Herbert Maschke",
-            "email": "thyseus@gmail.com",
-            "homepage": "https://github.com/thyseus/yii2-message"
+            "name": "Nico Ratti",
+            "email": "rattinico92@gmail.com",
+            "homepage": "https://github.com/niciz/yii2-message"
         }
     ],
     "minimum-stability": "dev",
@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "thyseus\\message\\": ""
+            "niciz\\message\\": ""
         }
     }
 }

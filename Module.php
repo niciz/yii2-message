@@ -4,10 +4,10 @@
  *
  * @property array $modelMap
  *
- * @author Herbert Maschke <thyseus@gmail.com>
+ * @author Nico Ratti <rattinico92@gmail.com>
  */
 
-namespace thyseus\message;
+namespace niciz\message;
 
 use yii;
 use yii\base\Module as BaseModule;

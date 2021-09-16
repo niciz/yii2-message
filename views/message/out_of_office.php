@@ -1,6 +1,6 @@
 <?php
 
-use thyseus\message\models\Message;
+use niciz\message\models\Message;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 

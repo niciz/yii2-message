@@ -19,8 +19,8 @@ https://github.com/2amigos/yii2-usuario
 ## Installation
 
 ```bash
-$ composer require thyseus/yii2-message
-$ php yii migrate/up --migrationPath=@vendor/thyseus/yii2-message/migrations
+$ composer require niciz/yii2-message
+$ php yii migrate/up --migrationPath=@vendor/niciz/yii2-message/migrations
 ```
 
 ## Configuration
@@ -30,7 +30,7 @@ Add following lines to your main configuration file:
 ```php
 'modules' => [
     'message' => [
-        'class' => 'thyseus\message\Module',
+        'class' => 'niciz\message\Module',
         'userModelClass' => '\app\models\User', // your User model. Needs to be ActiveRecord.
     ],
 ],

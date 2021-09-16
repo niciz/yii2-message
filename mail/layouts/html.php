@@ -13,7 +13,7 @@
 <?= $content ?>
 <?php $this->endBody() ?>
 <footer>
-    <p> Sent by <a href="https://github.com/thyseus/yii2-message">yii2-message</a>. </p>
+    <p> Sent by <a href="https://github.com/niciz/yii2-message">yii2-message</a>. </p>
 </footer>
 </body>
 </html>

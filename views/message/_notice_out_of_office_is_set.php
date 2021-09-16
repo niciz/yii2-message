@@ -2,13 +2,13 @@
 
 /* @var $this \yii\web\View */
 
-use thyseus\message\models\Message;
+use niciz\message\models\Message;
 use yii\helpers\Html;
 
 if (!isset(Yii::$app->get('i18n')->translations['message*'])) {
     Yii::$app->get('i18n')->translations['message*'] = [
         'class' => \yii\i18n\PhpMessageSource::class,
-        'basePath' => '@vendor/thyseus/yii2-message/messages',
+        'basePath' => '@vendor/niciz/yii2-message/messages',
         'sourceLanguage' => 'en-US'
     ];
 }

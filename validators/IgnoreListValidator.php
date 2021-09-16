@@ -1,9 +1,9 @@
 <?php
 
-namespace thyseus\message\validators;
+namespace niciz\message\validators;
 
 use yii;
-use thyseus\message\models\IgnoreListEntry;
+use niciz\message\models\IgnoreListEntry;
 use yii\validators\Validator;
 
 /**

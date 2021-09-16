@@ -1,6 +1,6 @@
 <?php
 use kartik\select2\Select2;
-use thyseus\message\models\Message;
+use niciz\message\models\Message;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;

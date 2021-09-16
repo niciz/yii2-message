@@ -1,6 +1,6 @@
 <?php
 
-use thyseus\message\models\Message;
+use niciz\message\models\Message;
 use yii\helpers\StringHelper;
 use yii\helpers\Html;
 

@@ -1,10 +1,9 @@
 <?php
 
-namespace thyseus\message\models;
+namespace niciz\message\models;
 
-use app\models\User;
-use thyseus\message\jobs\EmailJob;
-use thyseus\message\validators\IgnoreListValidator;
+use niciz\message\jobs\EmailJob;
+use niciz\message\validators\IgnoreListValidator;
 use yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -18,7 +17,7 @@ use yii\helpers\HtmlPurifier;
  * Class Message
  *
  * This is the "Message" model class for the yii2-message module.
- * @package thyseus\message\models
+ * @package niciz\message\models
  */
 class Message extends ActiveRecord
 {
@@ -119,7 +118,8 @@ class Message extends ActiveRecord
             $allowedUserIds = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $userIds);
         }
 
-        return User::find()->where(['id' => $allowedUserIds])->limit(200)->all();
+        $user = new Yii::$app->controller->module->userModelClass;
+        return $user::find()->where(['id' => $allowedUserIds])->limit(200)->all();
     }
 
     public static function determineUserCaptionAttribute()
@@ -335,7 +335,7 @@ class Message extends ActiveRecord
         }
 
         if (!file_exists($mailer->viewPath)) {
-            $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
+            $mailer->viewPath = '@vendor/niciz/yii2-message/mail/';
         }
 
         $mailer

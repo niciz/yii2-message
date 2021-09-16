@@ -1,6 +1,6 @@
 <?php
 
-namespace thyseus\message\events;
+namespace niciz\message\events;
 
 use yii\base\Event;
 
