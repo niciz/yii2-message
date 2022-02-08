@@ -18,6 +18,16 @@ use yii\helpers\HtmlPurifier;
  *
  * This is the "Message" model class for the yii2-message module.
  * @package niciz\message\models
+ * @property int $id [int]
+ * @property string $hash [varchar(32)]
+ * @property int $from [int]
+ * @property int $to [int]
+ * @property int $status [int]
+ * @property string $title [varchar(255)]
+ * @property string $message
+ * @property string $created_at [datetime]
+ * @property string $context [varchar(4096)]
+ * @property string $params [json]
  */
 class Message extends ActiveRecord
 {
@@ -45,9 +55,9 @@ class Message extends ActiveRecord
     }
 
     /**
-     * @param $from the user id of the sender. Set to null to send a 'system' message.
-     * @param $to the user id of the recipient
-     * @param $title title of the message (required)
+     * @param int|string $from the user id of the sender. Set to null to send a 'system' message.
+     * @param int|string $to the user id of the recipient
+     * @param string $title title of the message (required)
      * @param string $message body of the message (optional)
      * @param null $context set a string or url to define what this message referrs to (optional)
      * @param string $params extra params if the others are not enough
@@ -208,7 +218,7 @@ class Message extends ActiveRecord
             [['to'], 'exist',
                 'targetClass' => Yii::$app->getModule('message')->userModelClass,
                 'targetAttribute' => 'id',
-                'message' => Yii::t('app', 'Recipient has not been found'),
+                'message' => Yii::t('message', 'Recipient has not been found'),
             ],
             [['to'], 'required', 'when' => function ($model) {
                 return !in_array($model->status, [
