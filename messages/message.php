@@ -6,6 +6,8 @@ return [
     'languages' => [
         'de',
 		'es',
+        'ru',
+        'it',
     ],
     'translator' => 'Yii::t',
     'sort' => false,
