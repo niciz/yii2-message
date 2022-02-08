@@ -12,7 +12,6 @@ use yii\db\IntegrityException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
 use yii\helpers\StringHelper;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -358,16 +357,15 @@ class MessageController extends Controller
      * Depending on the submit button that has been used we probably save the message as a draft
      * instead of sending it directly. (since 0.4.0)
      *
-     * When a signature is given by the sender, we preload the signature in the message. (since 0.4.0)
+     * When the signature is given by the sender, we preload the signature in the message. (since 0.4.0)
      *
-     * When a out-of-office message is set by the recipient, we automatically send the message as answer
+     * When the out-of-office message is set by the recipient, we automatically send the message as answer
      * to the reicpient. (since 0.4.0)
      *
      * @return mixed
-     * @throws ForbiddenHttpException When the user is on the ignore list.
      * @throws NotFoundHttpException When the user is not found in the database anymore.
      * @var $context string|null This message is related to an entity accessible through this url
-     * @var $add_to_recipient_list bool This users did not yet have contact, add both of them to their contact list
+     * @var $add_to_recipient_list bool These users did not yet have contact, add both of them to their contact list
      * @since 0.3.0
      * @see README.md
      * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
@@ -394,8 +392,10 @@ class MessageController extends Controller
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
+        $request = Yii::$app->request;
+
         if (!Yii::$app->user->returnUrl) {
-            Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
+            Yii::$app->user->setReturnUrl($request->referrer);
         }
 
         if ($answers) {
@@ -407,26 +407,28 @@ class MessageController extends Controller
             }
         }
 
-        if (Yii::$app->request->isPost) {
-            $recipients = Yii::$app->request->post('Message')['to'];
-            $draft_hash = Yii::$app->request->post('draft-hash');
+        if ($request->isPost) {
+            $recipients = $request->post('Message')['to'];
+            $draft_hash = $request->post('draft-hash');
 
             if (is_numeric($recipients)) { # Only one recipient given
                 $recipients = [$recipients];
             }
 
-            if (isset($_POST['save-as-draft'])) {
-                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post('Message'));
-            } else if (isset($_POST['save-as-template'])) {
-                $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post('Message'));
+            if ($request->post('save-as-draft', false)) {
+                $this->saveDraft(Yii::$app->user->id, $request->post('Message'));
+            } else if ($request->post('save-as-template', false)) {
+                $this->saveTemplate(Yii::$app->user->id, $request->post('Message'));
             } else {
                 foreach ($recipients as $recipient_id) {
-                    $this->sendMessage($recipient_id, Yii::$app->request->post('Message'), $answers ? $origin : null);
+                    $this->sendMessage($recipient_id, $request->post('Message'), $answers ? $origin : null);
                 }
-                $this->cleanupDraft($draft_hash);
+                if ($draft_hash) {
+                    $this->cleanupDraft($draft_hash);
+                }
             }
 
-            return Yii::$app->request->isAjax ? true : $this->goBack();
+            return $request->isAjax ? true : $this->goBack();
         }
 
         $model = $this->prepareCompose($to, $model, $answers ? $origin : null, $context);
@@ -437,9 +439,9 @@ class MessageController extends Controller
             'model' => $model,
             'draft_hash' => $draft_hash,
             'answers' => $answers,
-            'origin' => isset($origin) ? $origin : null,
+            'origin' => $origin ?? null,
             'context' => $context,
-            'dialog' => Yii::$app->request->isAjax,
+            'dialog' => $request->isAjax,
             'allow_multiple' => true,
             'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', $caption_attribute),
         ]);
@@ -455,19 +457,22 @@ class MessageController extends Controller
     {
         $user_id = Yii::$app->user->id;
         $status = Message::STATUS_DRAFT;
-        $message_table = 'message';
 
-        Yii::$app->db->createCommand(
-            "delete from `$message_table` where `from` = $user_id and `status` = $status and `hash` = '$draft_hash'"
-        )->execute();
-
-        return true;
+        if (Message::deleteAll([
+                'hash' => $draft_hash,
+                'status' => $status,
+                'from' => $user_id
+            ]) > 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
      * @param $to
      * @param Message $model
      * @param null $origin
+     * @param null $context
      * @return Message
      */
     protected function prepareCompose($to, Message $model, $origin = null, $context = null): Message
@@ -484,7 +489,7 @@ class MessageController extends Controller
             $prefix = Yii::$app->getModule('message')->answerPrefix;
 
             // avoid stacking of prefixes (Re: Re: Re:)
-            if (substr($origin->title, 0, strlen($prefix)) !== $prefix) {
+            if (!str_starts_with($origin->title, $prefix)) {
                 $model->title = $prefix . $origin->title;
             } else {
                 $model->title = $origin->title;
