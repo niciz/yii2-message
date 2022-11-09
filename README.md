@@ -16,6 +16,8 @@ I suggest to use https://github.com/dektrium/yii2-user which works wonderful wit
 Note that dektrium is no longer maintained, for future projects you should take a look at:
 https://github.com/2amigos/yii2-usuario
 
+Also, you need to install and setup a mailer component like https://github.com/yiisoft/yii2-symfonymailer/.
+
 ## Installation
 
 ```bash

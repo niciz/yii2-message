@@ -1,3 +1,19 @@
+0.5.3 - released on 2019-09-24
+ENH: remove composer dependency to abbandoned swiftmailer
+
+0.5.2 - released on 2019-09-24
+ENH: Improve delete query with ActiveRecord method
+ENH: Bug fixing and code clean
+ENH: Improve PHPDoc
+ENH: Fix translations category
+ENH: Add italian translations
+
+0.5.1 - released on 2019-09-24
+ENH: Bug fixing and code clean
+
+0.5.0 - released on 2021-09-16
+Migrate the repository from abbandoned gitlab repo (https://gitlab.com/thyseus/yii2-message) to github (https://github.com/niciz/yii2-message) with the new namespace
+
 0.4.0 - released on 2019-09-24
 ENH: MessageController#actionCheckForNewMessages() now returns proper json instead of a mystical string
 ENH: Introduce flash messages for common actions
