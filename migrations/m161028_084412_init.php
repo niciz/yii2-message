@@ -64,6 +64,6 @@ class m161028_084412_init extends Migration
     {
         $this->dropTable('{{%message}}');
         $this->dropTable('{{%message_ignorelist}}');
-        $this->dropTable('{{%message_allowed_contacts');
+        $this->dropTable('{{%message_allowed_contacts}}');
     }
 }
