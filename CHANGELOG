@@ -1,4 +1,7 @@
 0.5.3 - released on 2019-09-24
+BUG: fix migration down
+
+0.5.3 - released on 2019-09-24
 ENH: remove composer dependency to abbandoned swiftmailer
 
 0.5.2 - released on 2019-09-24
